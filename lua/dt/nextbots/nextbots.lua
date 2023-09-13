@@ -23,7 +23,7 @@ function DT_NextBots.AddNextBot(ENT)
   if ENT.Category == nil then return false end
 
   -- precache models
-  if ENT.PreloadModels ~= false and istable(ENT.Models) then
+  if ENT.PrecacheModels ~= false and istable(ENT.Models) then
     for _, model in ipairs(ENT.Models) do
       if not isstring(model) then continue end
       util.PrecacheModel(model)

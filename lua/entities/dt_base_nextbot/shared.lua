@@ -9,7 +9,7 @@ ENT.Height = 72
 ENT.Width = 10
 ENT.BloodColor = BLOOD_COLOR_RED
 ENT.RagdollOnDeath = true
-ENT.PreloadModels = true
+ENT.PrecacheModels = true
 ENT.Models = {
 	"models/Kleiner.mdl"
 }
