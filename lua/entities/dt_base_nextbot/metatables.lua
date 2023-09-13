@@ -13,7 +13,7 @@ if SERVER then
   local SetVelocity = ENT.SetVelocity
   function ENT:SetVelocity(vec, ...)
     if self.DT_NextBot then
-      if vec.z > 0 then self:DT_LeaveGround() end
+      if vec.z > 0 then self:DT_Jump(1) end
       self.loco:SetVelocity(vec)
     else return SetVelocity(self, vec, ...) end
   end
@@ -36,7 +36,22 @@ if SERVER then
   function NB:BecomeRagdoll(dmginfo, ...)
     if self.DT_NextBot then
       return self:DT_BecomeRagdoll(dmginfo)
-    else return BecomeRagdoll(self, dmginfo, ...)end
+    else return BecomeRagdoll(self, dmginfo, ...) end
+  end
+
+  local GetActivity = NB.GetActivity
+  function NB:GetActivity(...)
+    if self.DT_NextBot then
+      return self:GetSequenceActivity(self:GetSequence())
+    else return GetActivity(self, ...) end
+  end
+
+  local StartActivity = NB.StartActivity
+  function NB:StartActivity(act, ...)
+    if self.DT_NextBot then
+      local seq = self:SelectWeightedSequence(act)
+      if seq ~= -1 then self:StartSequence(seq) end
+    else return StartActivity(self, act, ...) end
   end
 
 end

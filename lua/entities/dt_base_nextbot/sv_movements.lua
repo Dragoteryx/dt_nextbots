@@ -13,15 +13,6 @@ function ENT:SetJumpingEnabled(enabled)
   self.loco:SetJumpGapsAllowed(enabled)
 end
 
-function ENT:IsAvoidEnabled()
-  return self.loco:GetAvoidAllowed()
-    and ALLOW_AVOIDING:GetBool()
-end
-
-function ENT:SetAvoidEnabled(enabled)
-  self.loco:SetAvoidAllowed(enabled)
-end
-
 -- Running/Crouching --
 
 function ENT:IsRunning()
@@ -72,27 +63,39 @@ local WEST = -EAST
 local function CollisionHulls(self, distance)
   if not isnumber(distance) then distance = 1 end
   local mins, maxs = self:GetCollisionBounds()
-  local radius = math.sqrt((math.abs(mins.x)^2)*2)/2 + distance
-  mins.x = mins.x/2
-  mins.y = mins.y/2
-  maxs.x = maxs.x/2
-  maxs.y = maxs.y/2
-  local debug = DT_Base.DebugNextBots() and 0.275 or nil
-  return self:DT_TraceHull({direction = Vector(1, -1):GetNormalized()*radius, step = true, mins = mins, maxs = maxs, debug = debug}),
-    self:DT_TraceHull({direction = Vector(1, 1):GetNormalized()*radius, step = true, mins = mins, maxs = maxs, debug = debug}),
-    self:DT_TraceHull({direction = Vector(-1, -1):GetNormalized()*radius, step = true, mins = mins, maxs = maxs, debug = debug}),
-    self:DT_TraceHull({direction = Vector(-1, 1):GetNormalized()*radius, step = true, mins = mins, maxs = maxs, debug = debug})
+  local radius = math.sqrt((math.abs(mins.x) ^ 2) * 2) / 2 + distance
+  mins.x = mins.x / 2
+  mins.y = mins.y / 2
+  maxs.x = maxs.x / 2
+  maxs.y = maxs.y / 2
+  local debug = DT_NextBots.DebugNextBots() and 0.275 or nil
+  local function Trace(x, y)
+    return self:DT_TraceHull({
+      direction = Vector(x, y):GetNormalized() * radius,
+      step = true, mins = mins, maxs = maxs,
+      debug = debug
+    })
+  end
+  return Trace(1, -1),
+    Trace(1, 1),
+    Trace(-1, -1),
+    Trace(-1, 1)
+end
+
+function ENT:IsStuck()
+  return self:GetVelocity():IsZero()
+    and self.loco:IsAttemptingToMove()
 end
 
 function ENT:Unstuck()
   while true do
-    if not self:IsAvoidEnabled() then return end
+    if not ALLOW_AVOIDING:GetBool() then return end
     local nw, ne, sw, se = CollisionHulls(self, 5)
     local hit = 0
-    if nw.Hit then hit = hit+1 end
-    if ne.Hit then hit = hit+1 end
-    if sw.Hit then hit = hit+1 end
-    if se.Hit then hit = hit+1 end
+    if nw.Hit then hit = hit + 1 end
+    if ne.Hit then hit = hit + 1 end
+    if sw.Hit then hit = hit + 1 end
+    if se.Hit then hit = hit + 1 end
     if hit == 3 then
       if sw.Hit and nw.Hit and ne.Hit then self.loco:Approach(SOUTH + EAST, 1)
       elseif nw.Hit and ne.Hit and se.Hit then self.loco:Approach(SOUTH + WEST, 1)
@@ -110,10 +113,12 @@ function ENT:Unstuck()
       elseif sw.Hit then self.loco:Approach(NORTH + EAST, 1)
       elseif se.Hit then self.loco:Approach(NORTH + WEST, 1) end
     else return hit == 0 end
-    if self:YieldCoroutine({
-      alwaysCancel = true
-    }) then return end
+    if coroutine.yield(DT_NextBots.YIELD_ALL_EVENTS) then return end
   end
+end
+
+function ENT:DoUnstuck()
+  self:Unstuck()
 end
 
 -- Climbing --

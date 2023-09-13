@@ -1,18 +1,18 @@
--- Checks if the nextbot has an enemy
+-- Check if the nextbot has an enemy
 function ENT:HasEnemy()
   return IsValid(self:GetEnemy())
 end
 
 if CLIENT then
 
-  -- Gets the current enemy
+  -- Get the current enemy
   function ENT:GetEnemy()
     return self:GetNW2Entity("DT/Enemy")
   end
 
 else
 
-  -- Gets the current enemy
+  -- Get the current enemy
   function ENT:GetEnemy()
     local enemy = self:GetNW2Entity("DT/Enemy")
     if IsValid(enemy) then

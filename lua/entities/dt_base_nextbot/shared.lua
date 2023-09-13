@@ -1,4 +1,3 @@
-if not DT_Base then return end
 ENT.Base = "base_nextbot"
 ENT.DT_NextBot = true
 
@@ -12,19 +11,20 @@ ENT.Width = 10
 ENT.BloodColor = BLOOD_COLOR_RED
 ENT.RagdollOnDeath = true
 ENT.Models = {
-  "models/Kleiner.mdl"
+	"models/Kleiner.mdl"
 }
 
 -- AI --
-ENT.Faction = nil
 ENT.MeleeAttackRange = 50
 ENT.RangeAttackRange = 0
 ENT.ApproachEnemyRange = 50
 ENT.AvoidEnemyRange = 0
-
--- Senses --
 ENT.SightRange = 5000
 ENT.SightAngle = 90
+
+-- Relationships
+ENT.Faction = DT_NextBots.FACTION_DEFAULT
+ENT.Tags = {}
 
 -- Animations --
 ENT.IdleAnimation = ACT_IDLE
@@ -57,85 +57,86 @@ ENT.ClimbLedgesMaxHeight = math.huge
 -- Possession --
 ENT.EnablePossession = false
 ENT.PossessionPrompt = true
-ENT.PossessionMoveType = nil
 
 if SERVER then
 
-  -- Called when the nextbot spawns
-  function ENT:Initialize() end
-  function ENT:DoSpawn() end
+	-- Called when the nextbot spawns
+	function ENT:Initialize() end
+	function ENT:DoSpawn() end
 
-  -- Called every tick
-  function ENT:Think() end
-  function ENT:DoThink() end
-  function ENT:DoPossessionThink() end
+	-- Called every tick
+	function ENT:Think() end
+	function ENT:DoThink() end
+	function ENT:DoPossessionThink() end
 
-  -- Called when a player uses the nextbot
-  function ENT:Use() end
-  function ENT:DoUse() end
+	-- Called when a player uses the nextbot
+	function ENT:Use() end
+	function ENT:DoUse() end
 
-  -- Called when the nextbot is in combat
-  function ENT:DoStartCombat(enemy) end
-  function ENT:DoCombat(enemy)
-    self:PathfindTo(enemy:GetPos())
-  end
+	-- Called when the nextbot is in combat
+	function ENT:DoStartCombat(enemy) end
+	function ENT:DoCombat(enemy)
+		self:MoveTowards(enemy:GetPos())
+	end
 
-  function ENT:DoMeleeAttack(enemy) end
-  function ENT:DoRangeAttack(enemy) end
+	function ENT:DoMeleeAttack(enemy) end
+	function ENT:DoRangeAttack(enemy) end
 
-  -- Called when the nextbot is searching an enemy
-  function ENT:DoStartSearch(enemy) end
-  function ENT:DoSearch(enemy)
-    if self:IsAbleToSee(enemy) then return true end
-    self:PathfindTo(enemy:GetPos())
-    -- todo: move to last know pos
+	-- Called when the nextbot is searching an enemy
+	function ENT:DoStartSearch(enemy) end
+	function ENT:DoSearch(enemy)
+		if self:IsAbleToSee(enemy) then return true end
+		self:MoveTowards(enemy:GetPos())
+		-- todo: move to last know pos
 
-  end
+	end
 
-  -- Called when the nextbot has no enemy
-  function ENT:DoStartIdle() end
-  function ENT:DoIdle() end
+	-- Called when the nextbot has no enemy
+	function ENT:DoStartIdle() end
+	function ENT:DoIdle()
+		coroutine.yield(DT_NextBots.YIELD_ALL_EVENTS)
+	end
 
-  function ENT:ShouldRun()
-    return self:IsInCombat()
-  end
+	function ENT:ShouldRun()
+		return self:IsInCombat()
+	end
 
-  function ENT:ShouldCrouch()
-    return false
-  end
+	function ENT:ShouldCrouch()
+		return false
+	end
 
-  -- Called when the nextbot is possessed by a player
-  function ENT:OnPossessionBinds(binds) end
-  function ENT:DoPossessionBinds(binds) end
-  function ENT:DoPossessionStart() end
-  function ENT:DoPossessionEnd() end
+	-- Called when the nextbot is possessed by a player
+	function ENT:OnPossessionBinds(binds) end
+	function ENT:DoPossessionBinds(binds) end
+	function ENT:DoPossessionStart() end
+	function ENT:DoPossessionEnd() end
 
-  -- Called when the nextbot takes damage
-  function ENT:OnTakeDamage(dmginfo, tr) end
-  function ENT:DoTakeDamage(dmginfo, tr) end
-  function ENT:OnFatalDamage(dmginfo, tr) end
+	-- Called when the nextbot takes damage
+	function ENT:OnTakeDamage(dmginfo, tr) end
+	function ENT:DoTakeDamage(dmginfo, tr) end
+	function ENT:OnFatalDamage(dmginfo, tr) end
 
-  -- Called when the nextbot dies/is down
-  function ENT:DoDeath(dmginfo, tr) end
-  function ENT:DoWounded(dmginfo, tr) end
-  function ENT:OnRagdoll(ragdoll) end
+	-- Called when the nextbot dies/is down
+	function ENT:DoDeath(dmginfo, tr) end
+	function ENT:DoDowned(dmginfo, tr) end
+	function ENT:OnRagdoll(ragdoll) end
 
-  function ENT:OnAnimChange(old, new) end
+	function ENT:OnAnimChange(old, new) end
+	function ENT:OnKill(ent, dmginfo) end
 
 end
 
 AddCSLuaFile()
-DT_Lib.IncludeFile("ai.lua")
-DT_Lib.IncludeFile("enemy.lua")
-DT_Lib.IncludeFile("internals.lua")
-DT_Lib.IncludeFile("memory.lua")
-DT_Lib.IncludeFile("metatables.lua")
-DT_Lib.IncludeFile("possession.lua")
-DT_Lib.IncludeFile("sv_animations.lua")
-DT_Lib.IncludeFile("sv_cni.lua")
-DT_Lib.IncludeFile("sv_coroutine.lua")
-DT_Lib.IncludeFile("sv_movements.lua")
-DT_Lib.IncludeFile("sv_pathfinding.lua")
-DT_Lib.IncludeFile("sv_relationships.lua")
-DT_Lib.IncludeFile("sv_senses.lua")
-DT_Lib.IncludeFile("sv_states.lua")
+DT_Core.IncludeFile("ai.lua")
+DT_Core.IncludeFile("enemy.lua")
+DT_Core.IncludeFile("internals.lua")
+DT_Core.IncludeFile("memory.lua")
+DT_Core.IncludeFile("metatables.lua")
+DT_Core.IncludeFile("possession.lua")
+DT_Core.IncludeFile("sv_animations.lua")
+DT_Core.IncludeFile("sv_movements.lua")
+DT_Core.IncludeFile("sv_pathfinding.lua")
+DT_Core.IncludeFile("sv_relationships.lua")
+DT_Core.IncludeFile("sv_senses.lua")
+DT_Core.IncludeFile("sv_states.lua")
+DT_Core.IncludeFile("sv_thread.lua")

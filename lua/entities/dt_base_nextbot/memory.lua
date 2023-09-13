@@ -1,50 +1,18 @@
-DT_Base.OmniscienceOverride = DT_Lib.ConVar("dt_base_ai_omniscience_override", "0")
-DT_Base.OmniscienceLevel = DT_Lib.ConVar("dt_base_ai_omniscience_level", "2")
-
--- Returns the current omniscience level
-function ENT:GetOmniscienceLevel()
-  if DT_Base.OmniscienceOverride:GetBool() then
-    return DT_Base.OmniscienceLevel:GetInt()
-  else
-    return self:GetNW2Int("DT/OmniscienceLevel", DT_Base.OMNISCIENCE_OFF)
-  end
-end
+DT_NextBots.OmniscienceOverride = DT_Core.ConVar("dt_base_ai_omniscience", "0")
 
 -- Returns true if the nextbot is omniscient
 function ENT:IsOmniscient()
-  return self:GetOmniscienceLevel() ~= DT_Base.OMNISCIENCE_OFF
-end
-
--- Returns true if the nextbot is partially omniscient
-function ENT:IsPartiallyOmniscient()
-  return self:GetOmniscienceLevel() == DT_Base.OMNISCIENCE_PARTIAL
-end
-
--- Returns true if the nextbot is fully omniscient
-function ENT:IsFullyOmniscient()
-  return self:GetOmniscienceLevel() == DT_Base.OMNISCIENCE_FULL
+  return DT_NextBots.OmniscienceOverride:GetBool()
+    or self:GetNW2Bool("DT/Omniscient")
 end
 
 if SERVER then
+  ENT.__DT_Memory = {}
 
   -- Set the current omniscience level
-  function ENT:SetOmniscienceLevel(level)
-    self:SetNW2Int("DT/OmniscienceLevel", level)
+  function ENT:SetOmniscient(omniscient)
+    self:SetNW2Bool("DT/Omniscient", omniscient)
   end
-
-  function ENT:SetPartiallyOmniscient(omniscient)
-    self:SetOmniscienceLevel(omniscient
-      and DT_Base.OMNISCIENCE_PARTIAL
-      or DT_Base.OMNISCIENCE_OFF)
-  end
-
-  function ENT:SetFullyOmniscient(omniscient)
-    self:SetOmniscienceLevel(omniscient
-      and DT_Base.OMNISCIENCE_FULL
-      or DT_Base.OMNISCIENCE_OFF)
-  end
-
-  ENT.__DT_Memory = {}
 
   function ENT:UpdateMemory(ent, pos)
     self.__DT_Memory[ent] = {
@@ -73,7 +41,7 @@ if SERVER then
     elseif self:IsOmniscient() then
       self:UpdateMemory(ent)
       return ent:GetPos()
-    end
+    else return nil end
   end
 
   function ENT:LastMemoryUpdate(ent)
@@ -82,7 +50,7 @@ if SERVER then
     elseif self:IsOmniscient() then
       self:UpdateMemory(ent)
       return CurTime()
-    end
+    else return nil end
   end
 
 end

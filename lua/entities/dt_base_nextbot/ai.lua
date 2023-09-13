@@ -21,6 +21,10 @@ if SERVER then
     return self:GetState() == self.State_AI_Search
   end
 
+  function ENT:SkipSearch()
+    return self:IsOmniscient()
+  end
+
   -- Returns true if the nextbot is idle
   function ENT:IsIdle()
     return self:GetState() == self.State_AI_Idle

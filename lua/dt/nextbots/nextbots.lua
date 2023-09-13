@@ -1,20 +1,23 @@
--- Debug --
-
-local DEBUG_NEXTBOTS = DT_Lib.ConVar("dt_base_debug_nextbots", "0")
-
-function DT_Base.DebugNextBots()
-  return GetConVar("developer"):GetBool()
-    and DEBUG_NEXTBOTS:GetBool()
-end
-
--- Register --
-
+local DEBUG_NEXTBOTS = DT_Core.ConVar("dt_base_debug_nextbots", "0")
 local DEFAULT_KILLICON = {
   icon = "HUD/killicons/default",
   color = Color(255, 80, 0, 255)
 }
 
-function DT_Base.AddNextBot(ENT)
+function DT_NextBots.DebugNextBots()
+  return GetConVar("developer"):GetBool()
+    and DEBUG_NEXTBOTS:GetBool()
+end
+
+function DT_NextBots.IterNextBots()
+  return DT_Core.Ipairs(list.GetForEdit("DT/NextBots"))
+end
+
+function DT_NextBots.GetNextBots()
+  return DT_NextBots.IterNextBots():Collect()
+end
+
+function DT_NextBots.AddNextBot(ENT)
   local class = string.Replace(ENT.Folder, "entities/", "")
   if ENT.PrintName == nil or ENT.Category == nil then return false end
 
@@ -28,12 +31,7 @@ function DT_Base.AddNextBot(ENT)
 
   -- resources
   if SERVER then
-    resource.AddFile("materials/entities/"..class..".png")
-  end
-
-  -- language
-  if CLIENT then
-    language.Add(class, ENT.PrintName)
+    resource.AddFile("materials/entities/" .. class .. ".png")
   end
 
   -- killicon
@@ -50,7 +48,6 @@ function DT_Base.AddNextBot(ENT)
       Class = class,
     }
     list.Set("NPC", class, NPC)
-    --list.Set("DT/Nextbots", class, NPC)
   end
 
   return true

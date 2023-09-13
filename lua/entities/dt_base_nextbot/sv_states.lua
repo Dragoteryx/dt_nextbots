@@ -1,51 +1,50 @@
---- @alias DT_Base.State fun(nb: DT_Base.NextBot): fun(): DT_Base.State
-
 function ENT:State_Spawn()
-  return function()
-    self:DoSpawn()
-    if self:IsPossessed() then return self.State_Possessed
-    elseif self:IsAIDisabled() then return self.State_AI_Disabled
-    else return self.State_AI end
-  end
+  self:DoSpawn()
+  if self:IsPossessed() then return self.State_Possession
+  elseif self:IsAIDisabled() then return self.State_AI_Disabled
+  else return self.State_AI end
 end
 
-function ENT:State_Possessed()
+function ENT:State_Possession()
   local started = false
-  return function()
+  while true do
     if self:IsPossessed() then
-      local doPossession = started and self.DoPossession or self.DoStartPossession
-      started = true
-      doPossession(self)
+      if not started then
+        self:DoPossessionStart()
+        started = true
+      end
+      self:DoPossession()
     elseif self:IsAIDisabled() then return self.State_AI_Disabled
     else return self.State_AI end
   end
 end
 
 function ENT:State_AI_Disabled()
-  return function()
-    if self:IsPossessed() then return self.State_Possesed
-    elseif not self:IsAIDisabled() then return self.State_AI end
+  while true do
+    if self:IsPossessed() then return self.State_Possession
+    elseif not self:IsAIDisabled() then return self.State_AI
+    else coroutine.yield(DT_NextBots.YIELD_ALL_EVENTS) end
   end
 end
 
 function ENT:State_AI()
-  return function()
-    if self:IsPossessed() then return self.State_Possessed
-    elseif self:IsAIDisabled() then return self.State_AI_Disabled
-    elseif self:HasEnemy() then return self.State_AI_Search
-    else return self.State_AI_Idle end
-  end
+  if self:IsPossessed() then return self.State_Possession
+  elseif self:IsAIDisabled() then return self.State_AI_Disabled
+  elseif self:HasEnemy() then return self.State_AI_Search
+  else return self.State_AI_Idle end
 end
 
 function ENT:State_AI_Combat()
   local started = false
-  return function()
-    if self:IsPossessed() then return self.State_Possessed end
+  while true do
+    if self:IsPossessed() then return self.State_Possession end
     if self:IsAIDisabled() then return self.State_AI_Disabled end
     if not self:HasEnemy() then return self.State_AI_Idle end
-    local doCombat = started and self.DoCombat or self.DoStartCombat
-    started = true
-    if doCombat(self, self:GetEnemy()) == false then
+    if not started then
+      self:DoStartCombat(self:GetEnemy())
+      started = true
+    end
+    if self:DoCombat(self:GetEnemy()) == false then
       return self.State_AI_Search
     end
   end
@@ -53,14 +52,16 @@ end
 
 function ENT:State_AI_Search()
   local started = false
-  return function()
-    if self:IsPossessed() then return self.State_Possessed end
+  while true do
+    if self:IsPossessed() then return self.State_Possession end
     if self:IsAIDisabled() then return self.State_AI_Disabled end
     if not self:HasEnemy() then return self.State_AI_Idle end
-    if self:IsFullyOmniscient() then return self.State_AI_Combat end
-    local doSearch = started and self.DoSearch or self.DoStartSearch
-    started = true
-    local res = doSearch(self, self:GetEnemy())
+    if self:SkipSearch() then return self.State_AI_Combat end
+    if not started then
+      self:DoStartSearch(self:GetEnemy())
+      started = true
+    end
+    local res = self:DoSearch(self:GetEnemy())
     if res == true then
       return self.State_AI_Combat
     elseif res == false then
@@ -72,8 +73,8 @@ end
 
 function ENT:State_AI_Idle()
   local started = false
-  return function()
-    if self:IsPossessed() then return self.State_Possessed end
+  while true do
+    if self:IsPossessed() then return self.State_Possession end
     if self:IsAIDisabled() then return self.State_AI_Disabled end
     if self:HasEnemy() then return self.State_AI_Search end
     local doIdle = started and self.DoIdle or self.DoStartIdle

@@ -1,4 +1,4 @@
-local MIXIN = DT_Lib.Mixin("dt_base_nextbot")
+local MIXIN = DT_Core.Mixin("dt_base_nextbot")
 
 function MIXIN:Initialize(init, ...)
   self:__DT_PreInitialize(...)
@@ -24,28 +24,33 @@ end
 if SERVER then
 
   function MIXIN:Use(use, ...)
+    local res = use(self, ...)
     self:__DT_Use(...)
-    return use(self, ...)
+    return res
   end
 
   function MIXIN:OnLandOnGround(onLandOnGround, ...)
+    local res = onLandOnGround(self, ...)
     self:__DT_OnLandOnGround(...)
-    return onLandOnGround(self, ...)
+    return res
   end
 
   function MIXIN:OnTraceAttack(onTraceAttack, ...)
+    local res = onTraceAttack(self, ...)
     self:__DT_OnTraceAttack(...)
-    return onTraceAttack(self, ...)
+    return res
   end
 
   function MIXIN:OnInjured(onInjured, ...)
+    local res = onInjured(self, ...)
     self:__DT_OnInjured(...)
-    return onInjured(self, ...)
+    return res
   end
 
   function MIXIN:OnKilled(onKilled, ...)
+    local res = onKilled(self, ...)
     self:__DT_OnKilled(...)
-    return onKilled(self, ...)
+    return res
   end
 
   function MIXIN:OnTakeDamage(onTakeDamage, ...)
@@ -54,8 +59,9 @@ if SERVER then
   end
 
   function MIXIN:HandleAnimEvent(handleAnimEvent, ...)
-    self:__DT_HandleAnimEvent(...)
-    return handleAnimEvent(self, ...)
+    local res = self:__DT_HandleAnimEvent(...)
+    local res2 = handleAnimEvent(self, ...)
+    return res or res2
   end
 
 else
@@ -68,8 +74,9 @@ else
   end
 
   function MIXIN:FireAnimationEvent(fireAnimationEvent, ...)
-    self:__DT_FireAnimationEvent(...)
-    return fireAnimationEvent(self, ...)
+    local res = self:__DT_FireAnimationEvent(...)
+    local res2 = fireAnimationEvent(self, ...)
+    return res or res2
   end
 
 end

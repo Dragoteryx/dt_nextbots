@@ -1,10 +1,9 @@
-if not DT_Base then return end
 ENT.Base = "dt_base_nextbot"
 ENT.DT_NextBot = true
 
 -- Info --
 ENT.PrintName = "Text NextBot"
-ENT.Category = "DT Base"
+ENT.Category = "DT NextBots"
 ENT.MaxHealth = 100
 ENT.HealthRegen = 0
 ENT.Height = 72
@@ -12,11 +11,11 @@ ENT.Width = 10
 ENT.BloodColor = BLOOD_COLOR_RED
 ENT.RagdollOnDeath = true
 ENT.Models = {
-  "models/player/gman_high.mdl"
+	"models/player/gman_high.mdl"
 }
 
 -- AI --
-ENT.Faction = nil
+ENT.Faction = "default"
 ENT.Omniscient = false
 ENT.MeleeAttackRange = 50
 ENT.RangeAttackRange = 0
@@ -39,26 +38,34 @@ ENT.CrouchRunAnimation = ACT_HL2MP_WALK_CROUCH
 ENT.EnableClimbing = false
 
 -- Possession --
-ENT.EnablePossession = false
+ENT.EnablePossession = true
 ENT.PossessionPrompt = true
-ENT.PossessionMoveType = nil
 
 if SERVER then
+	function ENT:Initialize()
+		self:SetEnemy(Entity(1))
+		self:DT_SetPlayerColor(Color(
+			math.random(255),
+			math.random(255),
+			math.random(255)
+		))
+	end
 
-  function ENT:Initialize()
-    self:SetEnemy(Entity(1))
-    self:DT_SetPlayerColor(Color(
-      math.random(255),
-      math.random(255),
-      math.random(255)
-    ))
-  end
+	function ENT:DoUse()
+		self:PlaySequenceAndWait("taunt_dance", {
+			cancelOnDamage = true
+		})
+	end
 
-  function ENT:DoDeath()
-    self:PlayActivityAndMove(ACT_GMOD_DEATH)
-  end
+	function ENT:DoTakeDamage()
+		self:PlaySequence("gesture_wave"):Await()
+	end
+
+	function ENT:DoDeath()
+		self:PlayActivityAndMove(ACT_GMOD_DEATH)
+	end
 
 end
 
 AddCSLuaFile()
-DT_Base.AddNextBot(ENT)
+DT_NextBots.AddNextBot(ENT)
