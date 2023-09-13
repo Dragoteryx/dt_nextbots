@@ -1,4 +1,4 @@
-DT_NextBots.PossessionInputs = DT_Core.CreateStruct()
+DT_NextBots.PossessionInputs = DT_Core.Struct()
 
 -- Get the nextbot that owns this PossessionInputs object
 function DT_NextBots.PossessionInputs.__index:GetNextBot()

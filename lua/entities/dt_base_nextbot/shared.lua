@@ -2,7 +2,6 @@ ENT.Base = "base_nextbot"
 ENT.DT_NextBot = true
 
 -- Misc --
-ENT.PrintName = ""
 ENT.Category = ""
 ENT.MaxHealth = 100
 ENT.HealthRegen = 0
@@ -10,6 +9,7 @@ ENT.Height = 72
 ENT.Width = 10
 ENT.BloodColor = BLOOD_COLOR_RED
 ENT.RagdollOnDeath = true
+ENT.PreloadModels = true
 ENT.Models = {
 	"models/Kleiner.mdl"
 }

@@ -2,7 +2,6 @@ ENT.Base = "dt_base_nextbot"
 ENT.DT_NextBot = true
 
 -- Info --
-ENT.PrintName = "Text NextBot"
 ENT.Category = "DT NextBots"
 ENT.MaxHealth = 100
 ENT.HealthRegen = 0
@@ -10,6 +9,7 @@ ENT.Height = 72
 ENT.Width = 10
 ENT.BloodColor = BLOOD_COLOR_RED
 ENT.RagdollOnDeath = true
+ENT.PreloadModels = true
 ENT.Models = {
 	"models/player/gman_high.mdl"
 }

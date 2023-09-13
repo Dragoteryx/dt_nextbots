@@ -19,10 +19,11 @@ end
 
 function DT_NextBots.AddNextBot(ENT)
   local class = string.Replace(ENT.Folder, "entities/", "")
-  if ENT.PrintName == nil or ENT.Category == nil then return false end
+  if ENT.PrintName == nil then ENT.PrintName = "#" .. class end
+  if ENT.Category == nil then return false end
 
   -- precache models
-  if istable(ENT.Models) then
+  if ENT.PreloadModels ~= false and istable(ENT.Models) then
     for _, model in ipairs(ENT.Models) do
       if not isstring(model) then continue end
       util.PrecacheModel(model)
